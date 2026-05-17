@@ -18,7 +18,8 @@ namespace WinFormsApp7
         private CheckBox chbHasLicense;
         private Button btnAddPerson;
         private Button btnClear;
-        private RichTextBox rtbOutput;
+        private DataGridView dgvOutput;
+
         private Label lblFirstName;
         private Label lblLastName;
         private Label lblBirthYear;
@@ -28,6 +29,7 @@ namespace WinFormsApp7
         public Form1()
         {
             InitializeCustomComponents();
+            SetupTable(); 
         }
 
         private void InitializeCustomComponents()
@@ -44,7 +46,15 @@ namespace WinFormsApp7
             this.btnAddPerson = new Button() { Location = new Point(25, 235), Size = new Size(110, 30), Text = "Додати" };
             this.btnClear = new Button() { Location = new Point(170, 235), Size = new Size(110, 30), Text = "Очистити" };
 
-            this.rtbOutput = new RichTextBox() { Location = new Point(300, 20), Size = new Size(320, 245) };
+            this.dgvOutput = new DataGridView()
+            {
+                Location = new Point(300, 20),
+                Size = new Size(500, 245),
+                AllowUserToAddRows = false,
+                ReadOnly = true,
+                RowHeadersVisible = false,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill
+            };
 
             this.lblFirstName = new Label() { Location = new Point(25, 23), Size = new Size(100, 20), Text = "Ім'я:" };
             this.lblLastName = new Label() { Location = new Point(25, 58), Size = new Size(100, 20), Text = "Прізвище:" };
@@ -55,15 +65,25 @@ namespace WinFormsApp7
             this.btnAddPerson.Click += new EventHandler(this.btnAddPerson_Click);
             this.btnClear.Click += new EventHandler(this.btnClear_Click);
 
-            this.ClientSize = new Size(644, 291);
+            this.ClientSize = new Size(825, 291);
             this.Controls.AddRange(new Control[] {
                 tbFirstName, tbLastName, tbBirthYear, tbWeight, tbHeight,
-                chbIsStudent, chbHasLicense, btnAddPerson, btnClear, rtbOutput,
+                chbIsStudent, chbHasLicense, btnAddPerson, btnClear, dgvOutput,
                 lblFirstName, lblLastName, lblBirthYear, lblWeight, lblHeight
             });
 
             this.Name = "Form1";
             this.Text = "Лабораторна робота 13";
+        }
+
+        private void SetupTable()
+        {
+            dgvOutput.Columns.Add("FirstName", "Ім'я");
+            dgvOutput.Columns.Add("LastName", "Прізвище");
+            dgvOutput.Columns.Add("Age", "Вік");
+            dgvOutput.Columns.Add("BMI", "ІМТ");
+            dgvOutput.Columns.Add("IsStudent", "Студент");
+            dgvOutput.Columns.Add("HasLicense", "Водій");
         }
 
         private void btnAddPerson_Click(object sender, EventArgs e)
@@ -93,17 +113,18 @@ namespace WinFormsApp7
 
         private void UpdateOutput()
         {
-            rtbOutput.Clear();
-            rtbOutput.AppendText("РЕЗУЛЬТАТИ ОБРОБКИ МАСИВУ:\r\n");
+            dgvOutput.Rows.Clear(); 
 
             foreach (var p in peopleList)
             {
-                rtbOutput.AppendText($"\r\nПерсона: {p.FirstName} {p.LastName}\r\n");
-                rtbOutput.AppendText($"Вік: {p.Age} років\r\n");
-                rtbOutput.AppendText($"Індекс маси тіла (ІМТ): {p.GetBMI():F2}\r\n");
-                rtbOutput.AppendText(p.IsStudent ? "Статус: Студент\r\n" : "Статус: Не студент\r\n");
-                rtbOutput.AppendText(p.HasDriverLicense ? "Водій: Так\r\n" : "Водій: Ні\r\n");
-                rtbOutput.AppendText("-------------------------------------------\r\n");
+                dgvOutput.Rows.Add(
+                    p.FirstName,
+                    p.LastName,
+                    p.Age,
+                    p.GetBMI().ToString("F2"),
+                    p.IsStudent ? "Так" : "Ні",
+                    p.HasDriverLicense ? "Так" : "Ні"
+                );
             }
         }
 
@@ -122,7 +143,7 @@ namespace WinFormsApp7
         private void btnClear_Click(object sender, EventArgs e)
         {
             peopleList.Clear();
-            rtbOutput.Clear();
+            dgvOutput.Rows.Clear();
             ClearInputs();
         }
     }
